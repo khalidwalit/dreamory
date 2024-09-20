@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "ES6", // or ES2020, etc.
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "__tests__/**/*.ts"]
+}
