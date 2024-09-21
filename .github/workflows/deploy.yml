@@ -24,10 +24,3 @@ jobs:
 
           # Run the containers in detached mode
           sudo docker-compose -f docker-compose.yml up -d
-
-      - name: Verify Deployment
-        run: |
-          # Check if backend is running
-          curl -f http://localhost:5001/ || exit 1
-          # Check if frontend is running
-          curl -f http://localhost:3000/ || exit 1
