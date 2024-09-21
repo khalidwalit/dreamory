@@ -7,7 +7,28 @@ import eventRoutes from './routes/eventRoutes';
 
 dotenv.config();
 const app = express();
-app.use(cors());
+
+const corsOptions: cors.CorsOptions = {
+  origin: (origin: string | undefined, callback: (err: Error | null, allowed?: boolean) => void) => {
+    const isProd = process.env.NODE_ENV === 'production';
+    if (isProd) {
+      // In production, restrict to the specific origin
+      if (origin === 'https://dreamory-fe.kwlabs.xyz') {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    } else {
+      // In development or other environments, allow all origins
+      callback(null, true);
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json());
 
