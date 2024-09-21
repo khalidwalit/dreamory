@@ -1,29 +1,32 @@
-# Use Node.js 20
-FROM node:20 AS build
+FROM node:20-alpine AS builder
+ENV NODE_ENV production
 
-# Set working directory
+# Add a work directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Cache and Install dependencies
+COPY package.json .
+COPY package-lock.json .
+RUN npm i
 
-# Install dependencies
-RUN npm install
-
-# Copy application files
+# Copy app files
 COPY . .
 
-# Build the application
+# Build the app
 RUN npm run build
 
-# Use Nginx to serve the built React app
-FROM nginx:alpine
+# Bundle static assets with nginx
+FROM nginx:1.21.0-alpine as production
+ENV NODE_ENV production
 
-# Copy built files to Nginx
-COPY --from=build /app/build /usr/share/nginx/html
+# Copy built assets from builder
+COPY --from=builder /app/build /usr/share/nginx/html
 
-# Expose the frontend port
+# Add your nginx.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expose port
 EXPOSE 80
 
-# Start Nginx
+# Start nginx
 CMD ["nginx", "-g", "daemon off;"]
