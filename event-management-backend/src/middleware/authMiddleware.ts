@@ -16,10 +16,15 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     return res.status(403).json({ message: 'No token provided' });
   }
 
+  console.log(token)
+
   jwt.verify(token, process.env.JWT_SECRET as string, (err: any, decoded: any) => {
     if (err) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      return res.status(401).json({ message: 'Token expired' });
     }
+    const decoded1 = jwt.decode(token);
+
+    console.log(decoded1)
     req.userId = decoded.id;
     next();
   });

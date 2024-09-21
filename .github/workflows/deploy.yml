@@ -1,0 +1,33 @@
+name: Deploy to Self-Hosted Server
+
+on:
+  push:
+    branches:
+      - main # Change to your default branch if necessary
+
+jobs:
+  build:
+    runs-on: self-hosted # Specify that this job should run on a self-hosted runner
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build Docker Images
+        run: |
+          sudo docker-compose -f docker-compose.yml build
+
+      - name: Run Docker Containers
+        run: |
+          # Stop and remove existing containers
+          sudo docker-compose -f docker-compose.yml down || true
+
+          # Run the containers in detached mode
+          sudo docker-compose -f docker-compose.yml up -d
+
+      - name: Verify Deployment
+        run: |
+          # Check if backend is running
+          curl -f http://localhost:5001/ || exit 1
+          # Check if frontend is running
+          curl -f http://localhost:3000/ || exit 1

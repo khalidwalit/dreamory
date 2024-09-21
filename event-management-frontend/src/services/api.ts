@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'http://localhost:5001/api', // backend server URL
+  baseURL: 'https://dreamory-be.kwlabs.xyz/api', // backend server URL
 });
 
 // Set Authorization token for authenticated requests

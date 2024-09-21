@@ -14,12 +14,18 @@ export const registerUser = async (email: string, password: string) => {
 };
 
 export const loginUser = async (email: string, password: string) => {
+  console.log('apa')
   const user = await User.findOne({ email });
+  console.log(user)
   if (!user || !(await bcrypt.compare(password, user.password))) {
     throw new Error('Invalid credentials');
   }
 
-  const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
+  console.log('wat')
+  const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET as string, { expiresIn: '1h' });
+  console.log('Token generated:', token);
+  const decodedToken = jwt.decode(token);
+  console.log('Decoded Token:', decodedToken);
   return { token, userId: user._id };
 };
 

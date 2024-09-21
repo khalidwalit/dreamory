@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { User } from '../models/User';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import * as authService from '../services/authService'; // Adjust the path as necessary
 
 
 export const register = async (req: Request, res: Response) => {
@@ -37,17 +38,16 @@ export const register = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email });
 
-  if (!user) {
-    return res.status(404).json({ message: 'User not found' });
+  try {
+    const { token, userId } = await authService.loginUser(email, password);
+    return res.json({ token, userId });
+  } catch (error) {
+    // if (error.message === 'User not found') {
+    //   return res.status(404).json({ message: 'User not found' });
+    // } else if (error.message === 'Invalid credentials') {
+    //   return res.status(401).json({ message: 'Invalid credentials' });
+    // }
+    return res.status(500).json({ message: 'Server error' });
   }
-
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    return res.status(401).json({ message: 'Invalid credentials' });
-  }
-
-  const token = jwt.sign({ id: user._id, email:user.email }, process.env.JWT_SECRET as string);
-  res.json({ token });
 };
