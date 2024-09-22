@@ -1,7 +1,8 @@
 import axios from 'axios'; 
 
+console.log(process.env.REACT_APP_API_ENDPOINT);
 const API = axios.create({
-  baseURL: process.env.REACT_APP_API_ENDPOINT, // backend server URL
+  baseURL: "https://dreamory-be.kwlabs.xyz/api", // backend server URL
 });
 
 // Set Authorization token for authenticated requests
