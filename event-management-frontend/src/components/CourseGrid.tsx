@@ -12,30 +12,34 @@ import useEventQueries from "../hooks/useEventQueries";
 import { Event } from "../types/Event"; // Import the Event interface from your types
 
 // EventCard component with props typed
-const EventCard: React.FC<{ event: Event }> = ({ event }) => (
-  <Card style={{ height: "100%" }}>
-    <CardMedia
-      component="img"
-      height="120"
-      image={event.thumbnail}
-      alt={event.name}
-    />
-    <CardContent>
-      <Typography gutterBottom variant="h6" component="div">
-        {event.name}
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        {event.status}
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        {event.location}
-      </Typography>
-    </CardContent>
-    <Button size="small" color="primary">
-      View Event
-    </Button>
-  </Card>
-);
+const EventCard: React.FC<{ event: Event }> = ({ event }) => {
+  const imageUrl = `${process.env.REACT_APP_API_ENDPOINT}/${event.thumbnail}`;
+
+  return (
+    <Card style={{ height: "100%" }}>
+      <CardMedia
+        component="img"
+        height="120"
+        image={imageUrl}
+        alt={event.name}
+      />
+      <CardContent>
+        <Typography gutterBottom variant="h6" component="div">
+          {event.name}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          {event.status}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          {event.location}
+        </Typography>
+      </CardContent>
+      <Button size="small" color="primary">
+        View Event
+      </Button>
+    </Card>
+  );
+};
 
 // Main component to render the grid of event cards
 const EventGrid: React.FC = () => {
@@ -51,8 +55,6 @@ const EventGrid: React.FC = () => {
 
   return (
     <div style={{ padding: "40px" }}>
-      {" "}
-      {/* Apply padding to the div */}
       <Grid container spacing={4}>
         {events.map((event: Event, index: number) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
