@@ -9,6 +9,10 @@ import { ExpiredToken } from "../models/ExpiredToken";
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
 export const registerUser = async (email: string, password: string) => {
+  const user = await User.findOne({ email });
+  if (user) {
+    throw new Error("Email already exists");
+  }
   const hashedPassword = await bcrypt.hash(password, 10);
   const newUser = new User({ email, password: hashedPassword });
   await newUser.save();

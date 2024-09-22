@@ -21,25 +21,19 @@ export const authMiddleware = async (
     return res.status(403).json({ message: "No token provided" });
   }
 
+  // Check if the token is blacklisted
   const blacklistedToken = await ExpiredToken.findOne({ token });
   if (blacklistedToken) {
-    return res.status(401).json({ message: "Token expired" });
+    return res.status(401).json({ message: "Token has been blacklisted" });
   }
 
-  console.log(token);
-
-  jwt.verify(
-    token,
-    process.env.JWT_SECRET as string,
-    (err: any, decoded: any) => {
-      if (err) {
-        return res.status(401).json({ message: "Token expired" });
-      }
-      const decoded1 = jwt.decode(token);
-
-      console.log(decoded1);
-      req.userId = decoded.id;
-      next();
+  jwt.verify(token, process.env.JWT_SECRET as string, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ message: "Invalid or expired token" });
     }
-  );
+
+    // Use decoded object directly
+    req.userId = (decoded as { id: string }).id; // Cast for better type safety
+    next();
+  });
 };

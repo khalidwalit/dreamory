@@ -1,3 +1,4 @@
+import { User } from '../models/User'; // Adjust the import based on your project structure
 import { Event } from "../models/Event";
 import bcrypt from "bcryptjs";
 
@@ -24,7 +25,16 @@ export const updateEvent = async (eventId: string, eventData: any) => {
 };
 
 
-export const deleteEvent = async (eventId: string) => {
+export const deleteEvent = async (eventId: string, userPassword: string, userId: string) => {
+  // Verify the user's password
+  const user = await User.findById(userId);
+  if (!user) throw new Error("User not found");
+
+  const isPasswordValid = await bcrypt.compare(userPassword, user.password);
+  console.log(isPasswordValid)
+  if (!isPasswordValid) throw new Error("Invalid password");
+
+  // Proceed to delete the event
   const event = await Event.findByIdAndDelete(eventId);
   if (!event) throw new Error("Event not found");
   return event;

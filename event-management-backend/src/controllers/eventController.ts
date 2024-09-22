@@ -27,9 +27,15 @@ export const createEvent = async (req: Request, res: Response) => {
 
 export const deleteEvent = async (req: Request, res: Response) => {
   const { id } = req.params;
+  const { password } = req.body; // Assuming password is sent in the request body
+  const userId = req.userId; // Accessing userId from the request
+
+  if (!userId) {
+    return res.status(401).json({ message: "User not authenticated" });
+  }
 
   try {
-    const deletedEvent = await eventService.deleteEvent(id);
+    const deletedEvent = await eventService.deleteEvent(id, password, userId);
     res.status(200).json({ message: "Event deleted successfully", event: deletedEvent });
   } catch (error) {
     if (error instanceof Error) {
