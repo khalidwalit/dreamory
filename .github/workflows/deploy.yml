@@ -6,21 +6,50 @@ on:
       - main # Change to your default branch if necessary
 
 jobs:
-  build:
+  deploy:
     runs-on: self-hosted # Specify that this job should run on a self-hosted runner
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Build Docker Images
+      - name: Build Frontend Docker Image
         run: |
-          sudo docker-compose -f docker-compose.yml build
+          # Navigate to the frontend directory and build the Docker image
+          cd frontend
+          sudo docker build -t frontend-image:latest .
 
-      - name: Run Docker Containers
+      - name: Build Backend Docker Image
         run: |
-          # Stop and remove existing containers
-          sudo docker-compose -f docker-compose.yml down || true
+          # Navigate to the backend directory and build the Docker image
+          cd backend
+          sudo docker build -t backend-image:latest .
 
-          # Run the containers in detached mode
-          sudo docker-compose -f docker-compose.yml up -d
+      - name: Stop and Remove Existing Frontend Container
+        run: |
+          # Stop and remove existing frontend container if it exists
+          sudo docker stop frontend || true
+          sudo docker rm frontend || true
+
+      - name: Stop and Remove Existing Backend Container
+        run: |
+          # Stop and remove existing backend container if it exists
+          sudo docker stop backend || true
+          sudo docker rm backend || true
+
+      - name: Run Frontend Container
+        run: |
+          # Run the frontend container in detached mode
+          sudo docker run -d --name frontend -p 3000:80 frontend-image:latest
+
+      - name: Run Backend Container with Volume
+        run: |
+          # Run the backend container in detached mode with a volume
+          sudo docker run -d \
+            --name backend \
+            -p 8000:80 \
+            -v backend_data:/app/uploads \ # Adjust the path according to your app
+            backend-image:latest
+
+volumes:
+  backend_data:
