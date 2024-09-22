@@ -20,7 +20,17 @@ import {
 import useEventQueries from "../hooks/useEventQueries";
 
 const EventView = () => {
-  const { events, eventsError, eventsLoading } = useEventQueries();
+  const [page, setPage] = useState(1);
+  const limit = 10;
+  const {
+    data: events,
+    error: eventsError,
+    isLoading: eventsLoading,
+  } = useEventQueries().useFetchEvents(page, limit);
+
+  if (!events || events.length === 0) {
+    return <div>No events found.</div>;
+  }
 
   if (eventsLoading) {
     return <CircularProgress />;

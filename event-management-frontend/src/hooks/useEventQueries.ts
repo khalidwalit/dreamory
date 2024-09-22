@@ -3,9 +3,11 @@ import API from '../services/api'; // Adjust the import based on your project st
 import { Event } from '../types/Event';
 
 // API calls
-const fetchEvents = async (): Promise<Event[]> => {
-  const response = await API.get('/events'); // Updated to use API instance
-  return response.data;
+const fetchEvents = async (page: number, limit: number): Promise<Event[]> => {
+  const response = await API.get('/events', {
+    params: { page, limit }, // Send pagination parameters
+  });
+  return response.data.events; // Adjust based on your response structure
 };
 
 const fetchEventById = async (eventId: string): Promise<Event> => {
@@ -18,10 +20,17 @@ const useEventQueries = () => {
   const queryClient = useQueryClient();
 
   // Fetch all events
-  const { data: events = [], error: eventsError = null, isLoading: eventsLoading } = useQuery<Event[], Error>({
-    queryKey: ['events'],
-    queryFn: fetchEvents,
-  });
+  // const { data: events = [], error: eventsError = null, isLoading: eventsLoading } = useQuery<Event[], Error>({
+  //   queryKey: ['events'],
+  //   queryFn: () => fetchEvents(page, limit),
+  // });
+
+  const useFetchEvents = (page: number, limit: number) => {
+    return useQuery<Event[], Error>({
+      queryKey: ['events', page, limit], // Update query key to include pagination parameters
+      queryFn: () => fetchEvents(page, limit),
+    });
+  };
 
   const useGetEvent = (eventId: string) => {
     return useQuery<Event, Error>({
@@ -162,9 +171,7 @@ const useEventQueries = () => {
   });
 
   return {
-    events,
-    eventsError,
-    eventsLoading,
+    useFetchEvents, // Expose useFetchEvents for component usage
     useGetEvent,
     createEvent,
     updateEvent,

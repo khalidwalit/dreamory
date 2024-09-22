@@ -9,6 +9,8 @@ import {
   DialogContent,
   DialogTitle,
   Box,
+  Container,
+  Typography,
 } from "@mui/material";
 import EventForm from "../components/EventForm";
 
@@ -32,14 +34,41 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div>
-      <h1>Admin Dashboard</h1>
-      <Button variant="contained" onClick={handleClickOpen}>
-        Create New Event
-      </Button>
-      <Button variant="outlined" onClick={handleLogout}>
-        Logout
-      </Button>
-
+      <Container
+        sx={{
+          margin: "20px auto", // Centers the container and adds space vertically
+          padding: "20px", // Adds space around the container
+          maxWidth: "80%", // Optional: Set a max width for the container
+          borderRadius: "8px", // Optional: Round the corners\
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center", // Aligns items vertically centered
+            marginBottom: "20px",
+          }}
+        >
+          <Typography variant="h1" component="h1">
+            Admin Dashboard
+          </Typography>
+          <Button variant="outlined" onClick={handleLogout}>
+            Logout
+          </Button>
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center" }}></Box>
+          <Button variant="contained" onClick={handleClickOpen}>
+            Create New Event
+          </Button>
+        </Box>
+      </Container>
       {/* Dialog for creating a new event */}
       <Dialog
         open={open}

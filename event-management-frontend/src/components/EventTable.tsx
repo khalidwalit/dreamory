@@ -15,7 +15,14 @@ import {
   DialogContent,
   Button,
   Box,
+  TextField,
+  TableSortLabel,
+  Container,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+
 import EditIcon from "@mui/icons-material/Edit";
 import useEventQueries from "../hooks/useEventQueries";
 import { Event } from "../types/Event";
@@ -33,19 +40,29 @@ const EventTable: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
   console.log(selectedEvent);
-  const { events, eventsError, eventsLoading } = useEventQueries();
+  const [page, setPage] = useState(1);
+  const limit = 10;
+  const {
+    data: events,
+    error: eventsError,
+    isLoading: eventsLoading,
+  } = useEventQueries().useFetchEvents(page, limit);
   const [statuses, setStatuses] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
   const [eventFormInputs, setEventFormInputs] =
     useState<EventFormInputs | null>(null);
+  const [filter, setFilter] = useState<string>("all");
+  const [deleteEventId, setDeleteEventId] = useState<string | null>(null);
+  const [openDialog, setOpenDialog] = useState(false);
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [sortColumn, setSortColumn] = useState<keyof Event>("name"); // Default sort by name
   useEffect(() => {
     if (Array.isArray(events) && events.length > 0) {
       setStatuses(events.map((event) => event.status));
     }
   }, [events]);
-
-  console.log(statuses);
 
   if (eventsLoading) {
     return <CircularProgress />;
@@ -55,10 +72,11 @@ const EventTable: React.FC = () => {
     return <div>Error loading events: {eventsError.message}</div>;
   }
 
-  const handleChangeStatus = (id: any, newStatus: any) => {
-    console.log(id);
-    console.log(newStatus);
+  if (!events || events.length === 0) {
+    return <div>No events found.</div>;
+  }
 
+  const handleChangeStatus = (id: any, newStatus: any) => {
     setStatuses((prevStatuses) =>
       prevStatuses.map((status, index) =>
         events[index]._id === id ? newStatus : status
@@ -88,22 +106,119 @@ const EventTable: React.FC = () => {
   const handleClose = () => {
     setOpen(false); // Close the dialog
   };
+  const filteredEvents = events.filter((event) => {
+    console.log("apa", filter);
+    if (filter === "completed") return event.status === "Completed";
+    if (filter === "ongoing") return event.status === "Ongoing";
+    return true; // For "all" events
+  });
+
+  const sortedEvents = filteredEvents.sort((a, b) => {
+    const aValue = a[sortColumn] ?? ""; // Fallback to empty string if undefined
+    const bValue = b[sortColumn] ?? ""; // Fallback to empty string if undefined
+
+    if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
+    if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  const handleSort = (column: keyof Event) => {
+    const isAsc = sortColumn === column && sortDirection === "asc";
+    setSortDirection(isAsc ? "desc" : "asc");
+    setSortColumn(column);
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setDeleteEventId(id);
+    setOpenDialog(true);
+  };
+
+  const confirmDelete = () => {
+    // if (password === "your_password_here") {
+    //   // Replace with actual password validation logic
+    //   handleDelete(deleteEventId);
+    //   setOpenDialog(false);
+    //   setPassword("");
+    // } else {
+    //   alert("Invalid password!");
+    // }
+  };
   return (
     <>
-      <TableContainer>
+      <TableContainer
+        sx={{
+          margin: "20px auto",
+          padding: "20px",
+          maxWidth: "80%",
+          borderRadius: "8px",
+          boxShadow: 2,
+        }}
+      >
+        <FormControl variant="outlined" sx={{ margin: "20px" }}>
+          <InputLabel>Filter</InputLabel>
+          <Select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            label="Filter"
+          >
+            <MenuItem value="all">All Events</MenuItem>
+            <MenuItem value="completed">Completed Events</MenuItem>
+            <MenuItem value="ongoing">Ongoing Events</MenuItem>
+          </Select>
+        </FormControl>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Start Date</TableCell>
-              <TableCell>End Date</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Location</TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortColumn === "name"}
+                  direction={sortColumn === "name" ? sortDirection : "asc"}
+                  onClick={() => handleSort("name")}
+                >
+                  Name
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortColumn === "startDate"}
+                  direction={sortColumn === "startDate" ? sortDirection : "asc"}
+                  onClick={() => handleSort("startDate")}
+                >
+                  Start Date
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortColumn === "endDate"}
+                  direction={sortColumn === "endDate" ? sortDirection : "asc"}
+                  onClick={() => handleSort("endDate")}
+                >
+                  End Date
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortColumn === "status"}
+                  direction={sortColumn === "status" ? sortDirection : "asc"}
+                  onClick={() => handleSort("status")}
+                >
+                  Status
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortColumn === "location"}
+                  direction={sortColumn === "location" ? sortDirection : "asc"}
+                  onClick={() => handleSort("location")}
+                >
+                  Location
+                </TableSortLabel>
+              </TableCell>
               <TableCell>Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {events.map((event: Event, index) => (
+            {sortedEvents.map((event: Event, index) => (
               <TableRow key={event._id}>
                 <TableCell>{event.name}</TableCell>
                 <TableCell>
@@ -114,7 +229,7 @@ const EventTable: React.FC = () => {
                 </TableCell>
                 <TableCell>
                   <Select
-                    value={statuses[index] || event.status} // Fallback to event.status
+                    value={statuses[index] || event.status}
                     onChange={(e) => {
                       const newStatus = e.target.value as
                         | "Ongoing"
@@ -131,11 +246,29 @@ const EventTable: React.FC = () => {
                   <IconButton onClick={() => handleEditClick(event)}>
                     <EditIcon />
                   </IconButton>
+                  <IconButton onClick={() => handleDeleteClick(event._id)}>
+                    <DeleteIcon />
+                  </IconButton>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
+        <Box display="flex" justifyContent="space-between" marginTop="20px">
+          <Button
+            variant="contained"
+            disabled={page === 1}
+            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => setPage((prev) => prev + 1)}
+          >
+            Next
+          </Button>
+        </Box>
       </TableContainer>
 
       <Dialog
@@ -166,30 +299,23 @@ const EventTable: React.FC = () => {
             </Button>
           </Box>
         </DialogContent>
-        {/* <DialogActions>
-          <Button onClick={handleCloseModal} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleCloseModal} color="primary">
-            Save
-          </Button>
-        </DialogActions> */}
       </Dialog>
 
-      {/* <Dialog open={open} onClose={handleCloseModal}>
-        <DialogTitle>Edit Event</DialogTitle>
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogContent>
-          {eventFormInputs && <EventForm existingEvent={eventFormInputs} />}
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Password"
+            type="password"
+            fullWidth
+            variant="outlined"
+            // value={password}
+            // onChange={(e) => setPassword(e.target.value)}
+          />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseModal} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleCloseModal} color="primary">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog> */}
+      </Dialog>
     </>
   );
 };

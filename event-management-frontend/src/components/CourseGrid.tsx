@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Grid,
   Card,
@@ -7,6 +7,7 @@ import {
   Typography,
   Button,
   CircularProgress,
+  Box,
 } from "@mui/material";
 import useEventQueries from "../hooks/useEventQueries";
 import { useNavigate } from "react-router-dom"; // Update to useNavigate
@@ -48,25 +49,47 @@ const EventCard: React.FC<{ event: Event }> = ({ event }) => {
 
 // Main component to render the grid of event cards
 const EventGrid: React.FC = () => {
-  const { events, eventsError, eventsLoading } = useEventQueries();
+  const [page, setPage] = useState(1);
+  const limit = 12;
+  const {
+    data: events,
+    error,
+    isLoading,
+  } = useEventQueries().useFetchEvents(page, limit);
 
-  if (eventsLoading) {
+  if (isLoading) {
     return <CircularProgress />;
   }
 
-  if (eventsError) {
-    return <div>Error loading events: {eventsError.message}</div>;
+  if (error) {
+    return <div>Error loading events: {error.message}</div>;
+  }
+
+  if (!events || events.length === 0) {
+    return <div>No events found.</div>;
   }
 
   return (
     <div style={{ padding: "40px" }}>
       <Grid container spacing={4}>
-        {events.map((event: Event, index: number) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
+        {events.map((event: Event) => (
+          <Grid item xs={12} sm={6} md={4} key={event._id}>
             <EventCard event={event} />
           </Grid>
         ))}
       </Grid>
+      <Box display="flex" justifyContent="space-between" marginTop="20px">
+        <Button
+          variant="contained"
+          disabled={page === 1}
+          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+        >
+          Previous
+        </Button>
+        <Button variant="contained" onClick={() => setPage((prev) => prev + 1)}>
+          Next
+        </Button>
+      </Box>
     </div>
   );
 };
