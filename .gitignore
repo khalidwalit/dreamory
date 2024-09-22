@@ -9,7 +9,7 @@
 *.log
 
 # Environment variables
-.env
+**/.env
 
 # npm debug files
 npm-debug.log*
