@@ -1,0 +1,10 @@
+version: "3.8"
+
+services:
+  backend:
+    env_file:
+      - ./event-management-backend/.env.prod
+
+  frontend:
+    env_file:
+      - ./event-management-frontend/.env.prod

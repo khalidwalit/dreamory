@@ -15,12 +15,12 @@ jobs:
 
       - name: Build Docker Images
         run: |
-          sudo docker-compose -f docker-compose.yml build
+          sudo docker-compose -f docker-compose.prod.yml build
 
       - name: Run Docker Containers
         run: |
           # Stop and remove existing containers
-          sudo docker-compose -f docker-compose.yml down || true
+          sudo docker-compose -f docker-compose.prod.yml down || true
 
           # Run the containers in detached mode
-          sudo docker-compose -f docker-compose.yml up -d
+          sudo docker-compose -f docker-compose.prod.yml up -d
