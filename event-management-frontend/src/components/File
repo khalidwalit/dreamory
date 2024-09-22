@@ -1,0 +1,205 @@
+// // import React from "react";
+// // import { useForm, SubmitHandler } from "react-hook-form";
+
+// // import { TextField, Button, Input } from "@mui/material";
+// // import { yupResolver } from "@hookform/resolvers/yup";
+// // import * as yup from "yup";
+
+// // type EventFormInputs = {
+// //   name: string;
+// //   startDate: Date;
+// //   endDate: Date;
+// //   location: string;
+// //   thumbnail: File | null; // Keep as File | null
+// // };
+
+// // const schema = yup.object().shape({
+// //   name: yup.string().required(),
+// //   startDate: yup.date().required(),
+// //   endDate: yup.date().required(),
+// //   location: yup.string().required(),
+// //   thumbnail: yup.mixed().required("Thumbnail is required"),
+// // });
+
+// // const EventForm = () => {
+// //   const {
+// //     register,
+// //     handleSubmit,
+// //     formState: { errors },
+// //   } = useForm<EventFormInputs>({
+// //     resolver: yupResolver(schema),
+// //   });
+// //   const { createEvent } = useEventQueries();
+
+// //   const onSubmit: SubmitHandler<EventFormInputs> = async (data) => {
+// //     let thumbnailUrl: string | null = null;
+
+// //     if (data.thumbnail) {
+// //       const formData = new FormData();
+// //       formData.append("file", data.thumbnail);
+// //       thumbnailUrl = await uploadFile(formData); // Implement this function
+// //     }
+
+// //     // Ensure this object matches the Omit type
+// //     const eventData: Omit<Event, '_id' | 'createdAt' | 'updatedAt'> = {
+// //       name: data.name,
+// //       startDate: new Date(data.startDate), // Ensure it's a Date object
+// //       endDate: new Date(data.endDate), // Ensure it's a Date object
+// //       location: data.location,
+// //       thumbnail: thumbnailUrl, // Store the uploaded thumbnail URL
+// //       status: 'Ongoing', // Default status
+// //       description: "", // Optional
+// //     };
+
+// //     createEvent.mutate(eventData); // Pass the event data
+// //   };
+
+// //   return (
+// //     <form onSubmit={handleSubmit(onSubmit)}>
+// //       <TextField
+// //         label="Event Name"
+// //         {...register("name")}
+// //         error={!!errors.name}
+// //         helperText={errors.name?.message}
+// //       />
+// //       <TextField
+// //         type="date"
+// //         label="Start Date"
+// //         {...register("startDate")}
+// //         error={!!errors.startDate}
+// //       />
+// //       <TextField
+// //         type="date"
+// //         label="End Date"
+// //         {...register("endDate")}
+// //         error={!!errors.endDate}
+// //       />
+// //       <TextField
+// //         label="Location"
+// //         {...register("location")}
+// //         error={!!errors.location}
+// //         helperText={errors.location?.message}
+// //       />{" "}
+// //       <Input
+// //         type="file"
+// //         {...register("thumbnail")}
+// //         error={!!errors.thumbnail}
+// //         inputProps={{ accept: "image/*" }} // Accept only image files
+// //       />
+// //       <Button type="submit">Create Event</Button>
+// //     </form>
+// //   );
+// // };
+
+// // const uploadFile = async (formData: FormData): Promise<string | null> => {
+// //   // Implement your file upload logic here
+// //   // Return the URL or identifier of the uploaded file
+// //   return "uploaded_file_url"; // Replace with actual uploaded file URL
+// // };
+
+// // export default EventForm;
+
+// import React, { useState } from "react";
+// import { Button, TextField, Typography, LinearProgress } from "@mui/material";
+// import { useMutation, UseMutationResult } from "@tanstack/react-query";
+// import useEventQueries from "../hooks/useEventQueries";
+// // Define a response type
+// interface UploadResponse {
+//   message: string;
+//   file?: any; // Define your file type based on your requirements
+// }
+// // Function to handle file upload
+// // const uploadFile = async (file: File): Promise<UploadResponse> => {
+// //   const formData = new FormData();
+// //   formData.append("thumbnail", file);
+// //   formData.append("name", "name");
+// //   formData.append("startDate", "2024-09-22T10:00:00");
+// //   formData.append("endDate", "2024-09-23T17:00:00");
+// //   formData.append("location", "San Francisco, CA");
+// //   const token = localStorage.getItem("token"); // Adjust based on your token storage method
+
+// //   console.log(formData);
+// //   const response = await fetch("http://localhost:5001/api/events/", {
+// //     // Updated URL
+// //     method: "POST",
+// //     body: formData,
+// //     headers: {
+// //       Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+// //     },
+// //   });
+
+// //   if (!response.ok) {
+// //     throw new Error("File upload failed");
+// //   }
+
+// //   return response.json();
+// // };
+
+// // FileUpload component
+// const FileUpload: React.FC = () => {
+//   const [file, setFile] = useState<File | null>(null);
+//   const [uploadProgress, setUploadProgress] = useState<number>(0);
+//   const { createEvent } = useEventQueries();
+
+//   // const mutation: UseMutationResult<UploadResponse, Error, File> = useMutation({
+//   //   mutationFn: uploadFile,
+//   //   onMutate: () => {
+//   //     setUploadProgress(0); // Reset progress
+//   //   },
+//   //   onSuccess: () => {
+//   //     alert("File uploaded successfully");
+//   //   },
+//   //   onError: (error: Error) => {
+//   //     alert(`Error: ${error.message}`);
+//   //   },
+//   //   onSettled: () => {
+//   //     setFile(null); // Reset file input
+//   //   },
+//   // });
+
+//   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+//     if (event.target.files) {
+//       setFile(event.target.files[0]);
+//     }
+//   };
+
+//   const handleSubmit = (event: React.FormEvent) => {
+//     event.preventDefault();
+//     if (file) {
+//       createEvent.mutate(file);
+//     }
+//   };
+
+//   return (
+//     <form onSubmit={handleSubmit}>
+//       <Typography variant="h5">Upload a File</Typography>
+//       <TextField
+//         type="file"
+//         onChange={handleFileChange}
+//         inputProps={{ accept: "application/pdf,image/*" }} // Accepts PDFs and images
+//         fullWidth
+//         required
+//         sx={{ mb: 2 }}
+//       />
+//       {/* {mutation.isPending && (
+//         <LinearProgress variant="indeterminate" sx={{ mb: 2 }} />
+//       )} */}
+//       <Button
+//         type="submit"
+//         variant="contained"
+//         color="primary"
+//         // disabled={mutation.isPending || !file}
+//       >
+//         Upload
+//       </Button>
+//       {/* {mutation.isError && (
+//         <Typography color="error">Error: {mutation.error?.message}</Typography>
+//       )}
+//       {mutation.isSuccess && (
+//         <Typography>File uploaded successfully!</Typography>
+//       )} */}
+//     </form>
+//   );
+// };
+
+// export default FileUpload;

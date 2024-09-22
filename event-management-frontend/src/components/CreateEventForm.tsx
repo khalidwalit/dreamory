@@ -1,44 +1,33 @@
-import React, { useEffect } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { TextField, Button, Box, Input } from "@mui/material";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import useEventQueries from "../hooks/useEventQueries"; // Assume this hook contains your mutation
+import React, { useState } from "react";
+import { TextField, Button, Typography, Box } from "@mui/material";
 
-// Define the form input types with File
-type EventFormInputs = {
+import { TextFieldProps } from "@mui/material/TextField"; // Import the correct type
+import { SubmitHandler, useForm } from "react-hook-form";
+import useEventQueries from "../hooks/useEventQueries";
+
+interface EventFormData {
   name: string;
   startDate: string; // Dates as strings to handle HTML input type="date"
   endDate: string;
   location: string;
-  thumbnail: File | null; // Can be null if no file is uploaded
-  status: "Ongoing" | "Completed"; // Consistent status type
-};
+  thumbnail: File | null; // File for the thumbnail
+  status: string;
+}
 
-interface EventFormProps {
-  existingEvent?: EventFormInputs; // Accept an existing event for updates
+interface CreateEventFormProps {
   closeModal: () => void; // Define the type of closeModal
 }
-const EventForm: React.FC<EventFormProps> = ({ existingEvent, closeModal }) => {
+
+const CreateEventForm: React.FC<CreateEventFormProps> = ({ closeModal }) => {
   const {
     register,
     handleSubmit,
     setValue,
-    reset,
     formState: { errors },
-  } = useForm<EventFormInputs>({
-    defaultValues: existingEvent, // Set default values if updating
-  });
+  } = useForm<EventFormData>();
 
-  const { createEvent, updateEvent } = useEventQueries();
+  const { createEvent } = useEventQueries();
 
-  useEffect(() => {
-    if (existingEvent) {
-      reset(existingEvent);
-    }
-  }, [existingEvent, reset]);
-
-  // Handle file input changes and set the file in the form
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; // Get the first file
     if (file) {
@@ -46,9 +35,9 @@ const EventForm: React.FC<EventFormProps> = ({ existingEvent, closeModal }) => {
     }
   };
 
-  const onSubmit: SubmitHandler<EventFormInputs> = (data) => {
+  const onSubmit: SubmitHandler<EventFormData> = (data) => {
     createEvent.mutate(data);
-    closeModal();
+    closeModal(); // Close the modal after submission
   };
 
   return (
@@ -87,18 +76,19 @@ const EventForm: React.FC<EventFormProps> = ({ existingEvent, closeModal }) => {
       />
 
       <Button variant="contained" component="label">
-        {/* Upload Event Poster */}
-        <Input
+        Upload Event Poster
+        <input
           type="file"
-          // accept="image/*"
+          accept="image/*"
           onChange={handleFileChange} // Handle file selection
         />
       </Button>
 
       <Button type="submit" variant="contained" color="primary">
-        {existingEvent ? "Update Event" : "Create Event"}
+        Create Event
       </Button>
     </Box>
   );
 };
-export default EventForm;
+
+export default CreateEventForm;
