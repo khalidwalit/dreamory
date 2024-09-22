@@ -50,6 +50,3 @@ jobs:
             -p 8000:80 \
             -v backend_data:/app/uploads \ # Adjust the path according to your app
             backend-image:latest
-
-volumes:
-  backend_data:
