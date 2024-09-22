@@ -15,7 +15,7 @@ const corsOptions: cors.CorsOptions = {
     callback: (err: Error | null, allowed?: boolean) => void
   ) => {
     const isProd = process.env.NODE_ENV === "production";
-    if (isProd) {
+    if (true) {
       // In production, restrict to the specific origin
       if (origin === "https://dreamory-fe.kwlabs.xyz") {
         callback(null, true);
