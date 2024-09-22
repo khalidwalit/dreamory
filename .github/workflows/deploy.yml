@@ -48,5 +48,5 @@ jobs:
           sudo docker run -d \
             --name backend \
             -p 8000:80 \
-            -v backend_data:/app/uploads \ # Adjust the path according to your app
+            -v /home/username/uploads:/app/uploads \
             backend-image:latest
