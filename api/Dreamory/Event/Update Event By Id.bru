@@ -1,0 +1,26 @@
+meta {
+  name: Update Event By Id
+  type: http
+  seq: 3
+}
+
+put {
+  url: http://localhost:5001/api/events/66edbeb3eb8e86ecf6dadc77
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZWZkN2ZlZTc2NDI2ZjU0MzMwODM1ZSIsImVtYWlsIjoidGVzdEB0ZXN0IiwiaWF0IjoxNzI2OTk0NTg3LCJleHAiOjE3MjY5OTgxODd9.kR0rujRvxqVZ0ZCRVSv4dFRo4Kn6e3LgidVK8k7T15o
+}
+
+body:json {
+  {
+    "name": "Tech Conference 2025",
+    "startDate": "2024-09-22T10:00:00",
+    "endDate": "2024-09-23T17:00:00",
+    "location": "San Francisco, CA",
+    "thumbnail": "/path/to/thumbnail.jpg"
+  }
+  
+}
