@@ -16,13 +16,13 @@ jobs:
       - name: Build Frontend Docker Image
         run: |
           # Navigate to the frontend directory and build the Docker image
-          cd frontend
+          cd event-management-frontend
           sudo docker build -t frontend-image:latest .
 
       - name: Build Backend Docker Image
         run: |
           # Navigate to the backend directory and build the Docker image
-          cd backend
+          cd event-management-backend
           sudo docker build -t backend-image:latest .
 
       - name: Stop and Remove Existing Frontend Container
