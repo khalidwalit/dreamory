@@ -1,8 +1,7 @@
 import React, { useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { TextField, Button, Box, Input } from "@mui/material";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
+
 import useEventQueries from "../hooks/useEventQueries"; // Assume this hook contains your mutation
 
 // Define the form input types with File
@@ -30,7 +29,7 @@ const EventForm: React.FC<EventFormProps> = ({ existingEvent, closeModal }) => {
     defaultValues: existingEvent, // Set default values if updating
   });
 
-  const { createEvent, updateEvent } = useEventQueries();
+  const { createEvent } = useEventQueries();
 
   useEffect(() => {
     if (existingEvent) {

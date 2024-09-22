@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthProvider";
-import CreateEventForm from "../components/CreateEventForm";
 import EventTable from "../components/EventTable";
 import {
   Button,

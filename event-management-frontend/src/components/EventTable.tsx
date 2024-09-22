@@ -13,7 +13,6 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
   Button,
   Box,
 } from "@mui/material";
@@ -33,6 +32,7 @@ type EventFormInputs = Omit<Event, "createdAt" | "updatedAt"> & {
 const EventTable: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
+  console.log(selectedEvent);
   const { events, eventsError, eventsLoading } = useEventQueries();
   const [statuses, setStatuses] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
