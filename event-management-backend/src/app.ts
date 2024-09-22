@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes";
 import eventRoutes from "./routes/eventRoutes";
+import path from 'path';
 
 dotenv.config();
 const app = express();
@@ -34,6 +35,8 @@ const corsOptions: cors.CorsOptions = {
 app.use(cors(corsOptions));
 
 app.use(express.json());
+
+app.use('/api/uploads', express.static(path.join(__dirname, '../uploads'))); // Serve static files
 
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
