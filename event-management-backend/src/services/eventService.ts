@@ -40,10 +40,20 @@ export const deleteEvent = async (eventId: string, userPassword: string, userId:
   return event;
 };
 
-export const getAllEvents = async (status?: string) => {
-  const filter = status ? { status } : {};
-  const events = await Event.find(filter);
-  return events;
+export const getAllEvents = async (page: number, limit: number) => {
+  const skip = (page - 1) * limit;
+
+  const events = await Event.find()
+    .skip(skip)
+    .limit(limit)
+    .exec();
+
+  const totalEvents = await Event.countDocuments();
+
+  return {
+    totalEvents,
+    events,
+  };
 };
 
 export const getEventById = async (id: string) => {

@@ -80,9 +80,22 @@ export const updateEvent = async (req: Request, res: Response) => {
 };
 
 export const listEvents = async (req: Request, res: Response) => {
+  const page = parseInt(req.query.page as string) || 1; // Default to page 1
+  const limit = parseInt(req.query.limit as string) || 10; // Default to limit 10
+
+   // Validate page and limit
+   if (page < 1 || limit < 1) {
+    return res.status(400).json({ message: "Page and limit must be positive integers." });
+  }
+
   try {
-    const events = await eventService.getAllEvents(); // Call service
-    res.json(events); // Respond with event data
+    const { totalEvents, events }  =await eventService.getAllEvents(page, limit); // Call service
+    res.status(200).json({
+      totalEvents,
+      page,
+      limit,
+      events,
+    });
   } catch (error) {
     if (error instanceof Error) {
       res.status(401).json({ message: error.message });
