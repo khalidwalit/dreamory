@@ -55,11 +55,12 @@ const EventTable: React.FC = () => {
     name: string;
   } | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [sortColumn, setSortColumn] = useState<keyof Event>("name");
   const [password, setPassword] = useState<string>("");
   const { updateStatus, deleteEvent } = useEventQueries();
+
+  console.log(selectedEvent);
 
   useEffect(() => {
     if (Array.isArray(events) && events.length > 0) {

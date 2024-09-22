@@ -1,18 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import {
-  Grid,
   Card,
   CardMedia,
   CardContent,
   Typography,
   Button,
-  CircularProgress,
-  Box,
 } from "@mui/material";
-import useEventQueries from "../hooks/useEventQueries";
 import { useNavigate } from "react-router-dom";
 import { Event } from "../types/Event";
-import Filter from "./Filter";
 
 const EventCard: React.FC<{ event: Event }> = ({ event }) => {
   const navigate = useNavigate();

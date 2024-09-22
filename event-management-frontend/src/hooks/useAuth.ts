@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import API from '../services/api'; // Adjust the import based on your project structure
 import { useNavigate } from 'react-router-dom'; // Import navigate
 
@@ -9,7 +9,6 @@ type RegisterCredentials = { email: string; password: string };
 // Hook for authentication
 const useAuth = () => {
   const isAuthenticated = !!localStorage.getItem('token'); // Simple check for token existence
-  const queryClient = useQueryClient();
   const navigate = useNavigate(); // Get navigate function
 
   // Mutation for logging in
