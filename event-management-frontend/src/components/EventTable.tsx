@@ -38,7 +38,7 @@ const EventTable: React.FC = () => {
         </TableHead>
         <TableBody>
           {events.map((event: Event) => (
-            <TableRow key={event.id}>
+            <TableRow key={event._id}>
               <TableCell>{event.name}</TableCell>
               <TableCell>
                 {new Date(event.startDate).toLocaleDateString()}

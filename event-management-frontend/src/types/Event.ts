@@ -1,5 +1,5 @@
 export interface Event {
-  id: string;                  // Unique identifier for the event
+  _id: string;                  // Unique identifier for the event
   name: string;                // Name of the event
   startDate: Date;            // Start date of the event
   endDate: Date;              // End date of the event

@@ -9,12 +9,17 @@ import {
   CircularProgress,
 } from "@mui/material";
 import useEventQueries from "../hooks/useEventQueries";
+import { useNavigate } from "react-router-dom"; // Update to useNavigate
 import { Event } from "../types/Event"; // Import the Event interface from your types
 
 // EventCard component with props typed
 const EventCard: React.FC<{ event: Event }> = ({ event }) => {
+  const navigate = useNavigate(); // Initialize useNavigate
   const imageUrl = `${process.env.REACT_APP_API_ENDPOINT}/${event.thumbnail}`;
-
+  const handleViewEvent = () => {
+    navigate(`/${event._id}`); // Navigate to event details page
+  };
+  console.log(event._id);
   return (
     <Card style={{ height: "100%" }}>
       <CardMedia
@@ -34,7 +39,7 @@ const EventCard: React.FC<{ event: Event }> = ({ event }) => {
           {event.location}
         </Typography>
       </CardContent>
-      <Button size="small" color="primary">
+      <Button size="small" color="primary" onClick={handleViewEvent}>
         View Event
       </Button>
     </Card>
