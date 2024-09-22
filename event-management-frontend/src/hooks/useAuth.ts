@@ -19,7 +19,6 @@ const useAuth = () => {
       return response.data; // Return the user data or token as needed
     },
     onSuccess: (data) => {
-      console.log("Login successful:", data);
       localStorage.setItem('token', data.token.token); // Store the token in local storage
       // Optionally, you can store the user ID as well
       localStorage.setItem('userId', data.token.userId);
@@ -41,7 +40,6 @@ const useAuth = () => {
       return response.data; // Return the user data or confirmation message
     },
     onSuccess: (data) => {
-      console.log("Registration successful:", data);
       // Handle successful registration (e.g., redirect to login)
     },
     onError: (error) => {

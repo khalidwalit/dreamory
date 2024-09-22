@@ -20,7 +20,6 @@ const EventCard: React.FC<{ event: Event }> = ({ event }) => {
   const handleViewEvent = () => {
     navigate(`/${event._id}`); // Navigate to event details page
   };
-  console.log(event._id);
   return (
     <Card style={{ height: "100%" }}>
       <CardMedia

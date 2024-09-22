@@ -1,5 +1,4 @@
-import axios from 'axios';
-console.log(process.env.REACT_APP_API_ENDPOINT); // Log the API endpoint
+import axios from 'axios'; 
 
 const API = axios.create({
   baseURL: process.env.REACT_APP_API_ENDPOINT, // backend server URL

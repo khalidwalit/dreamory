@@ -6,6 +6,7 @@ import useEventQueries from "../hooks/useEventQueries"; // Assume this hook cont
 
 // Define the form input types with File
 type EventFormInputs = {
+  _id: string;
   name: string;
   startDate: string; // Dates as strings to handle HTML input type="date"
   endDate: string;
@@ -29,7 +30,12 @@ const EventForm: React.FC<EventFormProps> = ({ existingEvent, closeModal }) => {
     defaultValues: existingEvent, // Set default values if updating
   });
 
-  const { createEvent } = useEventQueries();
+  const { createEvent, updateEvent } = useEventQueries();
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  const todayString = today.toISOString().split("T")[0];
+  const tomorrowString = tomorrow.toISOString().split("T")[0];
 
   useEffect(() => {
     if (existingEvent) {
@@ -46,8 +52,24 @@ const EventForm: React.FC<EventFormProps> = ({ existingEvent, closeModal }) => {
   };
 
   const onSubmit: SubmitHandler<EventFormInputs> = (data) => {
+    console.log(existingEvent);
+    if (existingEvent) {
+      console.log("existing");
+      updateEvent.mutate({
+        id: existingEvent._id,
+        name: data.name,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        location: data.location,
+        thumbnail: data.thumbnail, // Ensure this is a File or null
+        status: data.status, // Optional; can default in the mutation function
+      });
+      closeModal();
+      return;
+    }
     createEvent.mutate(data);
     closeModal();
+    return;
   };
 
   return (
@@ -67,16 +89,24 @@ const EventForm: React.FC<EventFormProps> = ({ existingEvent, closeModal }) => {
       <TextField
         type="date"
         label="Start Date"
-        {...register("startDate")}
+        defaultValue={todayString} // Set default to today
+        {...register("startDate", { required: "Start date is required" })}
         error={!!errors.startDate}
         helperText={errors.startDate?.message}
+        inputProps={{
+          min: todayString, // Set min to start date or today
+        }}
       />
       <TextField
         type="date"
         label="End Date"
-        {...register("endDate")}
+        defaultValue={tomorrowString} // Set default to tomorrow
+        {...register("endDate", { required: "End date is required" })}
         error={!!errors.endDate}
         helperText={errors.endDate?.message}
+        inputProps={{
+          min: todayString, // Set min to start date or today
+        }}
       />
       <TextField
         label="Location"

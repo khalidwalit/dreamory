@@ -17,29 +17,29 @@ import {
   Box,
   TextField,
   TableSortLabel,
-  Container,
   FormControl,
   InputLabel,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-
 import EditIcon from "@mui/icons-material/Edit";
+import CloseIcon from "@mui/icons-material/Close";
 import useEventQueries from "../hooks/useEventQueries";
 import { Event } from "../types/Event";
 import EventForm from "./EventForm";
+import Filter from "./Filter";
+
 type EventFormInputs = Omit<Event, "createdAt" | "updatedAt"> & {
   _id: string;
   name: string;
-  startDate: string; // Dates as strings to handle HTML input type="date"
+  startDate: string;
   endDate: string;
   location: string;
-  thumbnail: File | null; // Can be null if no file is uploaded
-  status: "Ongoing" | "Completed"; // Consistent status type
+  thumbnail: File | null;
+  status: "Ongoing" | "Completed";
 };
+
 const EventTable: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-
-  console.log(selectedEvent);
   const [page, setPage] = useState(1);
   const limit = 10;
   const {
@@ -52,17 +52,23 @@ const EventTable: React.FC = () => {
   const [eventFormInputs, setEventFormInputs] =
     useState<EventFormInputs | null>(null);
   const [filter, setFilter] = useState<string>("all");
-  const [deleteEventId, setDeleteEventId] = useState<string | null>(null);
+  const [deleteEvent, setDeleteEvent] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
-
   const [searchTerm, setSearchTerm] = useState("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [sortColumn, setSortColumn] = useState<keyof Event>("name"); // Default sort by name
+  const [sortColumn, setSortColumn] = useState<keyof Event>("name");
+  const [password, setPassword] = useState<string>(""); // Initialize with an empty string
+
   useEffect(() => {
     if (Array.isArray(events) && events.length > 0) {
       setStatuses(events.map((event) => event.status));
     }
   }, [events]);
+
+  const totalPages = 10;
 
   if (eventsLoading) {
     return <CircularProgress />;
@@ -76,7 +82,7 @@ const EventTable: React.FC = () => {
     return <div>No events found.</div>;
   }
 
-  const handleChangeStatus = (id: any, newStatus: any) => {
+  const handleChangeStatus = (id: string, newStatus: string) => {
     setStatuses((prevStatuses) =>
       prevStatuses.map((status, index) =>
         events[index]._id === id ? newStatus : status
@@ -88,10 +94,10 @@ const EventTable: React.FC = () => {
     const formInputs: EventFormInputs = {
       _id: event._id,
       name: event.name,
-      startDate: event.startDate, // Assuming it's a string
-      endDate: event.endDate, // Assuming it's a string
+      startDate: event.startDate.split("T")[0],
+      endDate: event.endDate.split("T")[0],
       location: event.location,
-      thumbnail: null, // You can handle file uploads separately
+      thumbnail: null,
       status: event.status,
     };
 
@@ -103,19 +109,16 @@ const EventTable: React.FC = () => {
     setOpen(false);
     setSelectedEvent(null);
   };
-  const handleClose = () => {
-    setOpen(false); // Close the dialog
-  };
+
   const filteredEvents = events.filter((event) => {
-    console.log("apa", filter);
     if (filter === "completed") return event.status === "Completed";
     if (filter === "ongoing") return event.status === "Ongoing";
-    return true; // For "all" events
+    return true;
   });
 
   const sortedEvents = filteredEvents.sort((a, b) => {
-    const aValue = a[sortColumn] ?? ""; // Fallback to empty string if undefined
-    const bValue = b[sortColumn] ?? ""; // Fallback to empty string if undefined
+    const aValue = a[sortColumn] ?? "";
+    const bValue = b[sortColumn] ?? "";
 
     if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
     if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
@@ -128,97 +131,53 @@ const EventTable: React.FC = () => {
     setSortColumn(column);
   };
 
-  const handleDeleteClick = (id: string) => {
-    setDeleteEventId(id);
+  const handleDeleteClick = (name: string, id: string) => {
+    setDeleteEvent({ id, name });
     setOpenDialog(true);
   };
 
+  const handleDeleteClose = () => {
+    setOpenDialog(false);
+  };
+
   const confirmDelete = () => {
-    // if (password === "your_password_here") {
-    //   // Replace with actual password validation logic
-    //   handleDelete(deleteEventId);
-    //   setOpenDialog(false);
-    //   setPassword("");
-    // } else {
-    //   alert("Invalid password!");
-    // }
+    setOpenDialog(false);
+    setPassword("");
+    // Handle delete logic
+  };
+
+  const handleFilterChange = (newFilter: string) => {
+    setFilter(newFilter);
+  };
+
+  const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(event.target.value); // Now this will work
   };
   return (
     <>
-      <TableContainer
-        sx={{
-          margin: "20px auto",
-          padding: "20px",
-          maxWidth: "80%",
-          borderRadius: "8px",
-          boxShadow: 2,
-        }}
-      >
-        <FormControl variant="outlined" sx={{ margin: "20px" }}>
-          <InputLabel>Filter</InputLabel>
-          <Select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            label="Filter"
-          >
-            <MenuItem value="all">All Events</MenuItem>
-            <MenuItem value="completed">Completed Events</MenuItem>
-            <MenuItem value="ongoing">Ongoing Events</MenuItem>
-          </Select>
-        </FormControl>
+      <TableContainer sx={{ paddingTop: "10px !important" }}>
+        <Filter filter={filter} onFilterChange={handleFilterChange} />
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>
-                <TableSortLabel
-                  active={sortColumn === "name"}
-                  direction={sortColumn === "name" ? sortDirection : "asc"}
-                  onClick={() => handleSort("name")}
-                >
-                  Name
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={sortColumn === "startDate"}
-                  direction={sortColumn === "startDate" ? sortDirection : "asc"}
-                  onClick={() => handleSort("startDate")}
-                >
-                  Start Date
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={sortColumn === "endDate"}
-                  direction={sortColumn === "endDate" ? sortDirection : "asc"}
-                  onClick={() => handleSort("endDate")}
-                >
-                  End Date
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={sortColumn === "status"}
-                  direction={sortColumn === "status" ? sortDirection : "asc"}
-                  onClick={() => handleSort("status")}
-                >
-                  Status
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={sortColumn === "location"}
-                  direction={sortColumn === "location" ? sortDirection : "asc"}
-                  onClick={() => handleSort("location")}
-                >
-                  Location
-                </TableSortLabel>
-              </TableCell>
+              {["name", "startDate", "endDate", "status", "location"].map(
+                (column) => (
+                  <TableCell key={column}>
+                    <TableSortLabel
+                      active={sortColumn === column}
+                      direction={sortColumn === column ? sortDirection : "asc"}
+                      onClick={() => handleSort(column as keyof Event)}
+                    >
+                      {column.charAt(0).toUpperCase() + column.slice(1)}
+                    </TableSortLabel>
+                  </TableCell>
+                )
+              )}
               <TableCell>Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {sortedEvents.map((event: Event, index) => (
+            {sortedEvents.map((event) => (
               <TableRow key={event._id}>
                 <TableCell>{event.name}</TableCell>
                 <TableCell>
@@ -229,13 +188,13 @@ const EventTable: React.FC = () => {
                 </TableCell>
                 <TableCell>
                   <Select
-                    value={statuses[index] || event.status}
-                    onChange={(e) => {
-                      const newStatus = e.target.value as
-                        | "Ongoing"
-                        | "Completed";
-                      handleChangeStatus(event._id, newStatus);
-                    }}
+                    value={
+                      statuses[events.findIndex((e) => e._id === event._id)] ||
+                      event.status
+                    }
+                    onChange={(e) =>
+                      handleChangeStatus(event._id, e.target.value)
+                    }
                   >
                     <MenuItem value="Ongoing">Ongoing</MenuItem>
                     <MenuItem value="Completed">Completed</MenuItem>
@@ -246,7 +205,9 @@ const EventTable: React.FC = () => {
                   <IconButton onClick={() => handleEditClick(event)}>
                     <EditIcon />
                   </IconButton>
-                  <IconButton onClick={() => handleDeleteClick(event._id)}>
+                  <IconButton
+                    onClick={() => handleDeleteClick(event.name, event._id)}
+                  >
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>
@@ -264,6 +225,7 @@ const EventTable: React.FC = () => {
           </Button>
           <Button
             variant="contained"
+            disabled={page >= totalPages}
             onClick={() => setPage((prev) => prev + 1)}
           >
             Next
@@ -271,49 +233,114 @@ const EventTable: React.FC = () => {
         </Box>
       </TableContainer>
 
-      <Dialog
-        open={open}
-        onClose={handleCloseModal}
-        maxWidth="md" // Set the maximum width of the modal
-        fullWidth // Allow the modal to take the full width of the viewport
-      >
+      {/* <Dialog open={open} onClose={handleCloseModal}>
         <DialogTitle>Update Event</DialogTitle>
-        <DialogContent>
+        <DialogContent sx={{ paddingTop: "10px !important" }}>
           {eventFormInputs && (
             <EventForm
               existingEvent={eventFormInputs}
               closeModal={() => setOpen(false)}
             />
-          )}{" "}
+          )}
+          <Button onClick={handleCloseModal} color="error" variant="contained">
+            Cancel
+          </Button>
+        </DialogContent>
+      </Dialog> */}
+
+      <Dialog
+        open={open}
+        // onClose={handleClose}
+        maxWidth="md" // Set the maximum width of the modal
+        fullWidth // Allow the modal to take the full width of the viewport
+      >
+        <DialogTitle>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <span>Update Event</span>
+            <IconButton onClick={handleCloseModal}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent sx={{ paddingTop: "10px !important" }}>
+          {eventFormInputs && (
+            <EventForm
+              existingEvent={eventFormInputs}
+              closeModal={() => setOpen(false)}
+            />
+          )}
           <Box
             component="form"
             sx={{
+              marginBottom: 2,
               display: "flex",
               flexDirection: "column",
               gap: 2,
               paddingTop: 2,
             }}
           >
-            <Button onClick={handleClose} color="error" variant="contained">
+            {/* <Button
+              onClick={handleCloseModal}
+              color="error"
+              variant="contained"
+            >
               Cancel
-            </Button>
+            </Button> */}
           </Box>
         </DialogContent>
       </Dialog>
 
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-        <DialogTitle>Confirm Deletion</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Password"
-            type="password"
-            fullWidth
-            variant="outlined"
-            // value={password}
-            // onChange={(e) => setPassword(e.target.value)}
-          />
+      <Dialog
+        open={openDialog}
+        // onClose={handleClose}
+        maxWidth="md" // Set the maximum width of the modal
+        fullWidth // Allow the modal to take the full width of the viewport
+      >
+        <DialogTitle>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <span>Delete Event</span>
+            <IconButton onClick={handleDeleteClose}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent sx={{ paddingTop: "10px !important" }}>
+          <Box
+            component="form"
+            sx={{
+              marginBottom: 2,
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              paddingTop: 2,
+            }}
+          >
+            Event Name : {deleteEvent?.name}
+            <TextField
+              label="Password"
+              type="password"
+              value={password || ""}
+              onChange={handlePasswordChange}
+              fullWidth
+              margin="normal"
+            />
+            <Button
+              onClick={confirmDelete}
+              color="primary"
+              variant="contained"
+              disabled={!password} // Disable button if password is empty
+            >
+              Confirm
+            </Button>
+          </Box>
         </DialogContent>
       </Dialog>
     </>

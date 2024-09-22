@@ -155,12 +155,44 @@ const useEventQueries = () => {
   // });
 
   // Mutation for updating an event
-  const updateEvent = useMutation<Event, Error, { id: string; data: Partial<Event> }>({
-    mutationFn: ({ id, data }) => API.put(`/events/${id}`, data), // Updated to use API instance
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['events'] });
+
+  const updateEvent = useMutation({
+    mutationFn: async (formData: {
+      id: string; // ID should be included in the form data
+      name: string;
+      startDate: string; // Dates as strings to handle HTML input type="date"
+      endDate: string;
+      location: string;
+      thumbnail: File | null;
+      status: string;
+    }): Promise<UploadResponse> => {
+      const data = new FormData();
+  
+      // Append the file if it exists
+      if (formData.thumbnail) {
+        data.append("thumbnail", formData.thumbnail);
+      }
+  
+      // Append other form data
+      data.append("name", formData.name);
+      data.append("startDate", formData.startDate);
+      data.append("endDate", formData.endDate);
+      data.append("location", formData.location);
+      data.append("status", formData.status || "Ongoing");
+  
+      // Use the ID from the formData
+      const response = await API.put(`/events/${formData.id}`, data);
+      return response.data; // Make sure response.data matches UploadResponse type
     },
   });
+
+
+  // const updateEvent = useMutation<Event, Error, { id: string; data: Partial<Event> }>({
+  //   mutationFn: ({ id, data }) => API.put(`/events/${id}`, data), // Updated to use API instance
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries({ queryKey: ['events'] });
+  //   },
+  // });
 
   // Mutation for deleting an event
   const deleteEvent = useMutation<void, Error, string>({

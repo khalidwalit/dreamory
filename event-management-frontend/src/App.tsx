@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import AdminDashboard from "./pages/AdminDashboard";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import EventDetails from "./pages/EventDetails";
-import CourseGrid from "./components/CourseGrid";
+import ThumbnailView from "./components/ThumbnailView";
 import Login from "./pages/Login";
 import { AuthProvider } from "./AuthProvider";
 import ProtectedRoute from "./ProtectedRoute";
@@ -25,7 +25,7 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
-            <Route path="/" element={<CourseGrid />} />
+            <Route path="/" element={<ThumbnailView />} />
             <Route path="/:id" element={<EventDetails />} />
           </Routes>
         </Router>
