@@ -3,12 +3,18 @@ import * as authService from "../services/authService"; // Adjust the path as ne
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
-    const user = await authService.registerUser(email, password);
+    const { email, password, confirmPassword } = req.body; // Get confirmPassword from request body
+    const user = await authService.registerUser(email, password, confirmPassword);
     res.status(201).json({ message: "User registered successfully", user });
   } catch (error) {
     if (error instanceof Error) {
-      res.status(401).json({ message: error.message });
+      if (error.message === "Invalid email format" || 
+          error.message === "Password must be at least 8 characters long and include uppercase letters, lowercase letters, numbers, and special characters." ||
+          error.message === "Passwords do not match") {
+        res.status(400).json({ message: error.message }); // Bad Request
+      } else {
+        res.status(401).json({ message: error.message }); // Unauthorized
+      }
     } else {
       res.status(500).json({ message: "An unexpected error occurred" });
     }
