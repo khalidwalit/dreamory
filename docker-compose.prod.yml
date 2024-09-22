@@ -10,7 +10,7 @@ services:
     volumes:
       - ./event-management-backend/uploads:/app/uploads
     env_file:
-      - .env.prod # Specify the environment file
+      - ./event-management-backend/.env.prod # Specify the environment file
 
   frontend:
     build:
@@ -19,4 +19,4 @@ services:
     ports:
       - "3000:80"
     env_file:
-      - .env.prod # Specify the environment file
+      - ./event-management-frontend/.env.prod # Specify the environment file
