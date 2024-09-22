@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../AuthProvider";
 import EventTable from "../components/EventTable";
 import {
   Button,
@@ -11,26 +9,18 @@ import {
   Box,
   Container,
   Typography,
-  Grid,
 } from "@mui/material";
 import EventForm from "../components/EventForm";
 
-const AdminDashboard: React.FC = () => {
-  const { logout } = useAuth();
-  const navigate = useNavigate();
-  const [open, setOpen] = useState(false); // State to manage dialog open/close
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login"); // Redirect to login page after logout
-  };
+const Admin: React.FC = () => {
+  const [open, setOpen] = useState(false);
 
   const handleClickOpen = () => {
-    setOpen(true); // Open the dialog
+    setOpen(true);
   };
 
   const handleClose = () => {
-    setOpen(false); // Close the dialog
+    setOpen(false);
   };
 
   return (
@@ -38,46 +28,34 @@ const AdminDashboard: React.FC = () => {
       <>
         <Container
           sx={{
-            margin: "20px auto", // Centers the container and adds space vertically
-            padding: "20px", // Adds space around the container
-            maxWidth: "80%", // Optional: Set a max width for the container
-            borderRadius: "8px", // Optional: Round the corners\
+            margin: "20px auto",
+            padding: "20px",
+            maxWidth: { xs: "90%", sm: "80%", md: "70%", lg: "60%" }, // Responsive maxWidth
+            borderRadius: "8px",
           }}
         >
           <Box
             sx={{
               display: "flex",
+              flexDirection: { xs: "column", sm: "row" }, // Stack vertically on small screens
               justifyContent: "space-between",
-              alignItems: "center", // Aligns items vertically centered
+              alignItems: "center",
               marginBottom: "20px",
             }}
           >
-            <Typography variant="h5" component="h1">
+            <Typography
+              variant="h5"
+              component="h1"
+              sx={{ mb: { xs: 2, sm: 0 } }}
+            >
               Admin Dashboard
             </Typography>
-            <Button variant="outlined" onClick={handleLogout}>
-              Logout
-            </Button>
-          </Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center" }}></Box>
             <Button variant="contained" onClick={handleClickOpen}>
               Create New Event
             </Button>
           </Box>
         </Container>
-        {/* Dialog for creating a new event */}
-        <Dialog
-          open={open}
-          onClose={handleClose}
-          maxWidth="md" // Set the maximum width of the modal
-          fullWidth // Allow the modal to take the full width of the viewport
-        >
+        <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
           <DialogTitle>Create New Event</DialogTitle>
           <DialogContent sx={{ paddingTop: "10px !important" }}>
             <EventForm closeModal={() => setOpen(false)} />
@@ -105,4 +83,4 @@ const AdminDashboard: React.FC = () => {
   );
 };
 
-export default AdminDashboard;
+export default Admin;

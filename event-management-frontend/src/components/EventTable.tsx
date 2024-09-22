@@ -17,8 +17,6 @@ import {
   Box,
   TextField,
   TableSortLabel,
-  FormControl,
-  InputLabel,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -52,7 +50,7 @@ const EventTable: React.FC = () => {
   const [eventFormInputs, setEventFormInputs] =
     useState<EventFormInputs | null>(null);
   const [filter, setFilter] = useState<string>("all");
-  const [deleteEvent, setDeleteEvent] = useState<{
+  const [deleteEvent1, setDeleteEvent1] = useState<{
     id: string;
     name: string;
   } | null>(null);
@@ -60,7 +58,8 @@ const EventTable: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [sortColumn, setSortColumn] = useState<keyof Event>("name");
-  const [password, setPassword] = useState<string>(""); // Initialize with an empty string
+  const [password, setPassword] = useState<string>("");
+  const { updateStatus, deleteEvent } = useEventQueries();
 
   useEffect(() => {
     if (Array.isArray(events) && events.length > 0) {
@@ -132,7 +131,7 @@ const EventTable: React.FC = () => {
   };
 
   const handleDeleteClick = (name: string, id: string) => {
-    setDeleteEvent({ id, name });
+    setDeleteEvent1({ id, name });
     setOpenDialog(true);
   };
 
@@ -141,9 +140,15 @@ const EventTable: React.FC = () => {
   };
 
   const confirmDelete = () => {
+    if (!deleteEvent1) {
+      return;
+    }
+    deleteEvent.mutate({
+      id: deleteEvent1.id,
+      password: password,
+    });
     setOpenDialog(false);
     setPassword("");
-    // Handle delete logic
   };
 
   const handleFilterChange = (newFilter: string) => {
@@ -151,8 +156,9 @@ const EventTable: React.FC = () => {
   };
 
   const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(event.target.value); // Now this will work
+    setPassword(event.target.value);
   };
+
   return (
     <>
       <TableContainer sx={{ paddingTop: "10px !important" }}>
@@ -192,9 +198,15 @@ const EventTable: React.FC = () => {
                       statuses[events.findIndex((e) => e._id === event._id)] ||
                       event.status
                     }
-                    onChange={(e) =>
-                      handleChangeStatus(event._id, e.target.value)
-                    }
+                    onChange={(e) => {
+                      const newStatus = e.target.value;
+                      handleChangeStatus(event._id, newStatus);
+
+                      updateStatus.mutate({
+                        id: event._id,
+                        status: newStatus,
+                      });
+                    }}
                   >
                     <MenuItem value="Ongoing">Ongoing</MenuItem>
                     <MenuItem value="Completed">Completed</MenuItem>
@@ -233,27 +245,7 @@ const EventTable: React.FC = () => {
         </Box>
       </TableContainer>
 
-      {/* <Dialog open={open} onClose={handleCloseModal}>
-        <DialogTitle>Update Event</DialogTitle>
-        <DialogContent sx={{ paddingTop: "10px !important" }}>
-          {eventFormInputs && (
-            <EventForm
-              existingEvent={eventFormInputs}
-              closeModal={() => setOpen(false)}
-            />
-          )}
-          <Button onClick={handleCloseModal} color="error" variant="contained">
-            Cancel
-          </Button>
-        </DialogContent>
-      </Dialog> */}
-
-      <Dialog
-        open={open}
-        // onClose={handleClose}
-        maxWidth="md" // Set the maximum width of the modal
-        fullWidth // Allow the modal to take the full width of the viewport
-      >
+      <Dialog open={open} maxWidth="md" fullWidth>
         <DialogTitle>
           <Box
             display="flex"
@@ -273,33 +265,10 @@ const EventTable: React.FC = () => {
               closeModal={() => setOpen(false)}
             />
           )}
-          <Box
-            component="form"
-            sx={{
-              marginBottom: 2,
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-              paddingTop: 2,
-            }}
-          >
-            {/* <Button
-              onClick={handleCloseModal}
-              color="error"
-              variant="contained"
-            >
-              Cancel
-            </Button> */}
-          </Box>
         </DialogContent>
       </Dialog>
 
-      <Dialog
-        open={openDialog}
-        // onClose={handleClose}
-        maxWidth="md" // Set the maximum width of the modal
-        fullWidth // Allow the modal to take the full width of the viewport
-      >
+      <Dialog open={openDialog} maxWidth="md" fullWidth>
         <DialogTitle>
           <Box
             display="flex"
@@ -323,7 +292,7 @@ const EventTable: React.FC = () => {
               paddingTop: 2,
             }}
           >
-            Event Name : {deleteEvent?.name}
+            Event Name: {deleteEvent1?.name}
             <TextField
               label="Password"
               type="password"
@@ -331,14 +300,13 @@ const EventTable: React.FC = () => {
               onChange={handlePasswordChange}
               fullWidth
               margin="normal"
+              required
             />
-            <Button
-              onClick={confirmDelete}
-              color="primary"
-              variant="contained"
-              disabled={!password} // Disable button if password is empty
-            >
-              Confirm
+          </Box>
+          <Box display="flex" justifyContent="flex-end" gap={2}>
+            <Button onClick={handleDeleteClose}>Cancel</Button>
+            <Button onClick={confirmDelete} variant="contained" color="error">
+              Confirm Delete
             </Button>
           </Box>
         </DialogContent>

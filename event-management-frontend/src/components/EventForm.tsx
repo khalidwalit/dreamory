@@ -2,23 +2,23 @@ import React, { useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { TextField, Button, Box, Input } from "@mui/material";
 
-import useEventQueries from "../hooks/useEventQueries"; // Assume this hook contains your mutation
+import useEventQueries from "../hooks/useEventQueries";
 
-// Define the form input types with File
 type EventFormInputs = {
   _id: string;
   name: string;
-  startDate: string; // Dates as strings to handle HTML input type="date"
+  startDate: string;
   endDate: string;
   location: string;
-  thumbnail: File | null; // Can be null if no file is uploaded
-  status: "Ongoing" | "Completed"; // Consistent status type
+  thumbnail: File | null;
+  status: "Ongoing" | "Completed";
 };
 
 interface EventFormProps {
-  existingEvent?: EventFormInputs; // Accept an existing event for updates
-  closeModal: () => void; // Define the type of closeModal
+  existingEvent?: EventFormInputs;
+  closeModal: () => void;
 }
+
 const EventForm: React.FC<EventFormProps> = ({ existingEvent, closeModal }) => {
   const {
     register,
@@ -27,7 +27,7 @@ const EventForm: React.FC<EventFormProps> = ({ existingEvent, closeModal }) => {
     reset,
     formState: { errors },
   } = useForm<EventFormInputs>({
-    defaultValues: existingEvent, // Set default values if updating
+    defaultValues: existingEvent,
   });
 
   const { createEvent, updateEvent } = useEventQueries();
@@ -43,26 +43,23 @@ const EventForm: React.FC<EventFormProps> = ({ existingEvent, closeModal }) => {
     }
   }, [existingEvent, reset]);
 
-  // Handle file input changes and set the file in the form
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]; // Get the first file
+    const file = e.target.files?.[0];
     if (file) {
-      setValue("thumbnail", file); // Set the file as the form value
+      setValue("thumbnail", file);
     }
   };
 
   const onSubmit: SubmitHandler<EventFormInputs> = (data) => {
-    console.log(existingEvent);
     if (existingEvent) {
-      console.log("existing");
       updateEvent.mutate({
         id: existingEvent._id,
         name: data.name,
         startDate: data.startDate,
         endDate: data.endDate,
         location: data.location,
-        thumbnail: data.thumbnail, // Ensure this is a File or null
-        status: data.status, // Optional; can default in the mutation function
+        thumbnail: data.thumbnail,
+        status: data.status,
       });
       closeModal();
       return;
@@ -78,8 +75,6 @@ const EventForm: React.FC<EventFormProps> = ({ existingEvent, closeModal }) => {
       onSubmit={handleSubmit(onSubmit)}
       sx={{ display: "flex", flexDirection: "column", gap: 2 }}
     >
-      {/* <Typography variant="h6">Create New Event</Typography> */}
-
       <TextField
         label="Event Name"
         {...register("name")}
@@ -89,23 +84,23 @@ const EventForm: React.FC<EventFormProps> = ({ existingEvent, closeModal }) => {
       <TextField
         type="date"
         label="Start Date"
-        defaultValue={todayString} // Set default to today
+        defaultValue={todayString}
         {...register("startDate", { required: "Start date is required" })}
         error={!!errors.startDate}
         helperText={errors.startDate?.message}
         inputProps={{
-          min: todayString, // Set min to start date or today
+          min: todayString,
         }}
       />
       <TextField
         type="date"
         label="End Date"
-        defaultValue={tomorrowString} // Set default to tomorrow
+        defaultValue={tomorrowString}
         {...register("endDate", { required: "End date is required" })}
         error={!!errors.endDate}
         helperText={errors.endDate?.message}
         inputProps={{
-          min: todayString, // Set min to start date or today
+          min: todayString,
         }}
       />
       <TextField
@@ -116,12 +111,7 @@ const EventForm: React.FC<EventFormProps> = ({ existingEvent, closeModal }) => {
       />
 
       <Button variant="contained" component="label">
-        {/* Upload Event Poster */}
-        <Input
-          type="file"
-          // accept="image/*"
-          onChange={handleFileChange} // Handle file selection
-        />
+        <Input type="file" onChange={handleFileChange} />
       </Button>
 
       <Button type="submit" variant="contained" color="primary">
@@ -130,4 +120,5 @@ const EventForm: React.FC<EventFormProps> = ({ existingEvent, closeModal }) => {
     </Box>
   );
 };
+
 export default EventForm;

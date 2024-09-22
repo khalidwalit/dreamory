@@ -9,6 +9,7 @@ import {
   Card,
   CardContent,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [isRegistering, setIsRegistering] = useState(false);
@@ -18,20 +19,82 @@ const Login = () => {
     confirmPassword: "",
   });
 
-  const { login, register } = useAuth(); // Use the custom hook
+  const { login, register } = useAuth();
+  const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const validateEmail = (email: string) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
+  const validatePassword = (password: string) => {
+    const minLength = 8;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    return (
+      password.length >= minLength &&
+      hasUpperCase &&
+      hasLowerCase &&
+      hasNumbers &&
+      hasSpecialChars
+    );
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(""); // Clear previous error messages
+
+    const { email, password, confirmPassword } = formData;
+
+    if (!validateEmail(email)) {
+      setErrorMessage("Please enter a valid email address.");
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      setErrorMessage(
+        "Password must be at least 8 characters long, include uppercase letters, lowercase letters, numbers, and special characters."
+      );
+      return;
+    }
+
+    if (isRegistering && password !== confirmPassword) {
+      setErrorMessage("Passwords do not match.");
+      return;
+    }
+
+    const handleSuccess = () => {
+      navigate("/admin");
+    };
+
+    const handleError = (error: any) => {
+      setErrorMessage("Invalid credentials, please try again.");
+      console.error("Login failed:", error);
+    };
+
+    const credentials = {
+      email,
+      password,
+      confirmPassword,
+    };
+
+    const mutationOptions = {
+      onSuccess: handleSuccess,
+      onError: handleError,
+    };
+
     if (isRegistering) {
-      register.mutate({
-        email: formData.email,
-        password: formData.password,
+      register.mutate(credentials, {
+        ...mutationOptions,
+        onSuccess: () => {
+          login.mutate(credentials, mutationOptions);
+        },
       });
     } else {
-      login.mutate({
-        email: formData.email,
-        password: formData.password,
-      });
+      login.mutate(credentials, mutationOptions);
     }
   };
 
@@ -42,6 +105,7 @@ const Login = () => {
 
   return (
     <Container maxWidth="xs" style={{ marginTop: "50px" }}>
+      {errorMessage && <div className="error-popup">{errorMessage}</div>}
       <Card>
         <CardContent>
           <Typography variant="h5" component="h2">

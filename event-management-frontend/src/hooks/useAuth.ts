@@ -24,7 +24,7 @@ const useAuth = () => {
       localStorage.setItem('userId', data.token.userId);
       // Handle successful login (e.g., store token, user info)
       // You might also want to invalidate any queries related to user state here
-      navigate('/admin');
+      window.location.href = "/admin";
 
     },
     onError: (error) => {
@@ -48,7 +48,23 @@ const useAuth = () => {
     },
   });
 
-  return { isAuthenticated,login, register };
+  const logout = useMutation<any, Error>({
+    mutationFn: async () => {
+      const response = await API.post('/auth/logout');
+      return response.data; // Return the confirmation message
+    },
+    onSuccess: () => {
+      localStorage.removeItem('token'); // Remove the token on successful logout
+      localStorage.removeItem('userId'); // Optionally remove user ID
+      navigate("/login"); // Redirect to login page
+    },
+    onError: (error) => {
+      console.error("Logout failed:", error);
+      // Handle error (e.g., show an error message)
+    },
+  });
+
+  return { isAuthenticated,login, register, logout };
 };
 
 export default useAuth;

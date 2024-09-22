@@ -30,48 +30,52 @@ const EventDetails: React.FC = () => {
   const imageUrl = `${process.env.REACT_APP_API_ENDPOINT}/${event.thumbnail}`;
 
   return (
-    <Card
-      style={{
-        maxWidth: "90%",
-        maxHeight: "90%",
-        margin: "auto",
-        padding: "20px",
-      }}
-    >
-      <CardMedia
-        component="img"
-        sx={{
-          height: {
-            xs: 300, // Height for extra-small screens
-            sm: 400, // Height for small screens
-            md: 500, // Height for medium and larger screens
-          },
+    <div style={{ padding: "40px" }}>
+      <Card
+        style={{
+          maxWidth: "90%",
+          maxHeight: "90%",
+          margin: "auto",
+          padding: "20px",
         }}
-        image={imageUrl}
-        alt={event.name}
-      />
-      <CardContent>
-        <Typography gutterBottom variant="h5" component="div">
-          {event.name}
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Status: {event.status}
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Location: {event.location}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" paragraph>
-          Description: {event.description}
-        </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => window.history.back()}
-        >
-          Go Back
-        </Button>
-      </CardContent>
-    </Card>
+      >
+        <CardMedia
+          component="img"
+          sx={{
+            height: {
+              xs: 300, // Height for extra-small screens
+              sm: 400, // Height for small screens
+              md: 500, // Height for medium and larger screens
+            },
+          }}
+          image={imageUrl}
+          alt={event.name}
+        />
+        <CardContent>
+          <Typography gutterBottom variant="h5" component="div">
+            {event.name}
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Status: {event.status}
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Location: {event.location}
+          </Typography>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            paragraph
+          ></Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => window.history.back()}
+          >
+            Go Back
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
