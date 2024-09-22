@@ -1,0 +1,22 @@
+meta {
+  name: Logout
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:5001/api/auth/logout
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZWZkN2ZlZTc2NDI2ZjU0MzMwODM1ZSIsImVtYWlsIjoidGVzdEB0ZXN0IiwiaWF0IjoxNzI3MDA1MjAyLCJleHAiOjE3MjcwMDg4MDJ9.sR17l7435V6qfQmROqo9R_12lWqCsfq_YDUA6nIAiW4
+}
+
+body:json {
+  {
+    "email": "test@test",
+    "password": "test"
+  }
+}

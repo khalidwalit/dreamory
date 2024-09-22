@@ -1,5 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
+import { ExpiredToken } from "../models/ExpiredToken";
 
 declare global {
   namespace Express {
@@ -9,23 +10,36 @@ declare global {
   }
 }
 
-export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const token = req.headers['authorization']?.split(' ')[1];
+export const authMiddleware = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const token = req.headers["authorization"]?.split(" ")[1];
 
   if (!token) {
-    return res.status(403).json({ message: 'No token provided' });
+    return res.status(403).json({ message: "No token provided" });
   }
 
-  console.log(token)
+  const blacklistedToken = await ExpiredToken.findOne({ token });
+  if (blacklistedToken) {
+    return res.status(401).json({ message: "Token expired" });
+  }
 
-  jwt.verify(token, process.env.JWT_SECRET as string, (err: any, decoded: any) => {
-    if (err) {
-      return res.status(401).json({ message: 'Token expired' });
+  console.log(token);
+
+  jwt.verify(
+    token,
+    process.env.JWT_SECRET as string,
+    (err: any, decoded: any) => {
+      if (err) {
+        return res.status(401).json({ message: "Token expired" });
+      }
+      const decoded1 = jwt.decode(token);
+
+      console.log(decoded1);
+      req.userId = decoded.id;
+      next();
     }
-    const decoded1 = jwt.decode(token);
-
-    console.log(decoded1)
-    req.userId = decoded.id;
-    next();
-  });
+  );
 };

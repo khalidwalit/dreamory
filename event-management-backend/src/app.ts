@@ -1,30 +1,33 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-import cors from 'cors';
-import authRoutes from './routes/authRoutes';
-import eventRoutes from './routes/eventRoutes';
+import express from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import cors from "cors";
+import authRoutes from "./routes/authRoutes";
+import eventRoutes from "./routes/eventRoutes";
 
 dotenv.config();
 const app = express();
 
 const corsOptions: cors.CorsOptions = {
-  origin: (origin: string | undefined, callback: (err: Error | null, allowed?: boolean) => void) => {
-    const isProd = process.env.NODE_ENV === 'production';
+  origin: (
+    origin: string | undefined,
+    callback: (err: Error | null, allowed?: boolean) => void
+  ) => {
+    const isProd = process.env.NODE_ENV === "production";
     if (isProd) {
       // In production, restrict to the specific origin
-      if (origin === 'https://dreamory-fe.kwlabs.xyz') {
+      if (origin === process.env.FE_ORIGIN) {
         callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'));
+        callback(new Error("Not allowed by CORS"));
       }
     } else {
       // In development or other environments, allow all origins
       callback(null, true);
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 };
 
@@ -32,15 +35,15 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 
-app.use('/api/auth', authRoutes);
-app.use('/api/events', eventRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/events", eventRoutes);
 
 const PORT = process.env.PORT || 5002; // Change to a different port
 
 const startServer = async () => {
   try {
     if (!process.env.MONGODB_URI) {
-      throw new Error('MONGODB_URI is not defined');
+      throw new Error("MONGODB_URI is not defined");
     }
 
     await mongoose.connect(process.env.MONGODB_URI as string);
@@ -48,14 +51,14 @@ const startServer = async () => {
       console.log(`Server running on port ${PORT}`);
     });
   } catch (err) {
-    console.error('MongoDB connection error:', err);
+    console.error("MongoDB connection error:", err);
     process.exit(1); // Exit process with failure
   }
 };
 
 // Graceful shutdown
-process.on('SIGINT', async () => {
-  console.log('Shutting down gracefully...');
+process.on("SIGINT", async () => {
+  console.log("Shutting down gracefully...");
   await mongoose.connection.close();
   process.exit(0);
 });

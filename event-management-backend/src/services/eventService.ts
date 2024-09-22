@@ -1,24 +1,45 @@
-// src/services/eventService.ts
-
-import { Event } from '../models/Event'; // Adjust the import according to your Event model
+import { Event } from "../models/Event";
+import bcrypt from "bcryptjs";
 
 export const createEvent = async (eventData: any) => {
-  const newEvent = new Event(eventData);
-  return await newEvent.save();
+  const event = new Event({ ...eventData });
+  await event.save();
+  return event;
 };
 
-export const getAllEvents = async (filter: any = {}) => {
-  return await Event.find(filter);
+
+
+export const updateEvent = async (eventId: string, eventData: any) => {
+  const event = await Event.findById(eventId);
+  if (!event) throw new Error("Event not found");
+
+  Object.keys(eventData).forEach((key) => {
+    if (eventData[key] !== undefined) {
+      (event as any)[key] = eventData[key];
+    }
+  });
+
+  await event.save();
+  return event;
 };
 
-export const getEventById = async (eventId: string) => {
-  return await Event.findById(eventId);
-};
-
-export const updateEvent = async (eventId: string, updatedData: any) => {
-  return await Event.findByIdAndUpdate(eventId, updatedData, { new: true });
-};
 
 export const deleteEvent = async (eventId: string) => {
-  return await Event.findByIdAndDelete(eventId);
+  const event = await Event.findByIdAndDelete(eventId);
+  if (!event) throw new Error("Event not found");
+  return event;
+};
+
+export const getAllEvents = async (status?: string) => {
+  const filter = status ? { status } : {};
+  const events = await Event.find(filter);
+  return events;
+};
+
+export const getEventById = async (id: string) => {
+  const event = await Event.findById(id);
+  if (!event) {
+    throw new Error("Event not found");
+  }
+  return event;
 };
