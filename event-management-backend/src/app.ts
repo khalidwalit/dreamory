@@ -14,7 +14,18 @@ const corsOptions: cors.CorsOptions = {
     origin: string | undefined,
     callback: (err: Error | null, allowed?: boolean) => void
   ) => {
-    callback(null, true);
+    const isProd = process.env.NODE_ENV === "production";
+    if (isProd) {
+      // In production, restrict to the specific origin
+      if (origin === process.env.FE_ORIGIN) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    } else {
+      // In development or other environments, allow all origins
+      callback(null, true);
+    }
   },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
